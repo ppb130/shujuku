@@ -21,7 +21,7 @@ const LoginRegister = () => {
   const login = () => {
     if (form.username !== "" && form.userpwd !== "") {
       axios
-        .post("http://localhost:3100/login", {
+        .post("http://localhost:3000/studentlogin", {
           username: form.username,
           password: form.userpwd,
         })
@@ -30,8 +30,6 @@ const LoginRegister = () => {
           if (res.data.status == "0") {
             alert("登录成功！");
             // 设置 cookie，有效期为 1 天
-            Cookies.set('user_identity', res.data.user.identity, { expires: 1 });
-            Cookies.set('username', res.data.user.username, { expires: 1 });
             if (res.data.user.identity == "admin") {
               navigate("/adminBook");
             } else if (res.data.user.identity == "user") {

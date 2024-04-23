@@ -1,14 +1,23 @@
-var mysql      = require('mysql');
-var connection = mysql.createConnection({
-  host     : '116.63.107.106',
-  user     : 'root',
-  password : '375201',
-  database : 'xuanke'
+const express = require('express');
+const cors = require('cors');
+const app = express();
+const studentLogin = require('./routes/student_login');
+const connection = require('./Models/student');
+
+app.use(cors());
+app.use(express.json());
+
+connection.connect(function(err) {
+  if (err) {
+    console.error('数据库连接失败:', err.stack);
+    return;
+  }
+  console.log('数据库连接成功，连接ID:', connection.threadId);
 });
- 
-connection.connect();
- 
-connection.query('SELECT 1 + 1 AS solution', function (error, results, fields) {
-  if (error) throw error;
-  console.log('The solution is: ', results[0].solution);
+
+app.use(studentLogin);
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
