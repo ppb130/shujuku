@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import axios from "axios";
 import "./LoginRegister.css";
 import { useNavigate } from "react-router-dom";
-import Cookies from 'js-cookie';
 
 
 const LoginRegister = () => {
@@ -27,14 +26,8 @@ const LoginRegister = () => {
         })
         .then((res) => {
           console.log("datadata:", res.data);
-          if (res.data.status == "0") {
-            alert("登录成功！");
-            // 设置 cookie，有效期为 1 天
-            if (res.data.user.identity == "admin") {
-              navigate("/adminBook");
-            } else if (res.data.user.identity == "user") {
-              navigate("/userBook");
-            }
+          if (res.data.status =="0") {
+              navigate("/StudentHome");
           } else if (res.data == "-1") {
             setUsernameError(true);
           } else if (res.data == "1") {

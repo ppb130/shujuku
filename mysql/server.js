@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 const studentLogin = require('./routes/student_login');
+const selectClass = require('./routes/select_class');
 const connection = require('./Models/student');
 
 app.use(cors());
@@ -16,6 +17,7 @@ connection.connect(function(err) {
 });
 
 app.use(studentLogin);
+app.use(selectClass);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
