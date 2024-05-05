@@ -3,21 +3,18 @@ const cors = require('cors');
 const app = express();
 const studentLogin = require('./routes/student_login');
 const selectClass = require('./routes/select_class');
-const connection = require('./Models/student');
+const student_course = require('./routes/student_class');
+const delectClass = require('./routes/delect_class');
+const mysql = require("mysql"); // 引入mysql2的promise版，方便使用async/await
+const pool = require('./Models/student')
 
 app.use(cors());
 app.use(express.json());
 
-connection.connect(function(err) {
-  if (err) {
-    console.error('数据库连接失败:', err.stack);
-    return;
-  }
-  console.log('数据库连接成功，连接ID:', connection.threadId);
-});
-
 app.use(studentLogin);
 app.use(selectClass);
+app.use(student_course);
+app.use(delectClass);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

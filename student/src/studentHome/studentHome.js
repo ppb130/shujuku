@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ScheduleOutlined, SnippetsOutlined, UserOutlined } from '@ant-design/icons';
 import { Breadcrumb, Layout, Menu, theme } from 'antd';
-import  SelectClass from "./selectClass"
+import SelectClass from "./selectClass";
+import StudentCourse from "./studentCourse";
+import DelectClass from "./delectClass";
 
 const { Header, Content, Sider } = Layout;
 
@@ -10,28 +12,39 @@ const items = [
     key: '选课',
     icon: <UserOutlined />,
     label: '选课',
+    component: <SelectClass />,
   },
   {
     key: '退课',
     icon: <ScheduleOutlined />,
     label: '退课',
+    component: <DelectClass />,
   },
   {
     key: '查看课表',
     icon: <SnippetsOutlined />,
     label: '查看课表',
+    component: <StudentCourse />, // Add component for '查看课表' if needed
   },
   {
     key: '查看成绩',
     icon: <ScheduleOutlined />,
     label: '查看成绩',
+    component: null, // Add component for '查看成绩' if needed
   }
 ];
 
 const StudentHome = () => {
+  const [selectedMenuItem, setSelectedMenuItem] = useState(items[0].key);
+
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
+
+  const handleMenuItemClick = (key) => {
+    setSelectedMenuItem(key);
+  };
+
   return (
     <Layout>
       <Header
@@ -51,14 +64,20 @@ const StudentHome = () => {
         >
           <Menu
             mode="inline"
-            defaultSelectedKeys={['1']}
+            defaultSelectedKeys={['选课']}
             defaultOpenKeys={['sub1']}
             style={{
               height: '100%',
               borderRight: 0,
             }}
-            items={items}
-          />
+            onSelect={({ key }) => handleMenuItemClick(key)}
+          >
+            {items.map(item => (
+              <Menu.Item key={item.key} icon={item.icon}>
+                {item.label}
+              </Menu.Item>
+            ))}
+          </Menu>
         </Sider>
         <Layout
           style={{
@@ -67,14 +86,14 @@ const StudentHome = () => {
         >
           <Content
             style={{
-              padding: 24,
+              padding: 0,
               margin: 0,
               minHeight: 280,
               background: colorBgContainer,
               borderRadius: borderRadiusLG,
             }}
           >
-            <SelectClass/>
+            {items.find(item => item.key === selectedMenuItem)?.component}
           </Content>
         </Layout>
       </Layout>
