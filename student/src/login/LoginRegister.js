@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./LoginRegister.css";
 import { useNavigate } from "react-router-dom";
@@ -19,28 +19,46 @@ const LoginRegister = () => {
 
   const login = () => {
     if (form.username !== "" && form.userpwd !== "") {
-      axios
-        .post("http://localhost:3000/studentlogin", {
-          username: form.username,
-          password: form.userpwd,
-        })
-        .then((res) => {
-          console.log("datadata:", res.data);
-          if (res.data.status =="0") {
-              navigate("/StudentHome");
-          } else if (res.data == "-1") {
-            setUsernameError(true);
-          } else if (res.data == "1") {
-            setPasswordError(true);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+        axios
+            .post("http://localhost:3000/studentlogin", {
+                username: form.username,
+                password: form.userpwd,
+            })
+            .then((res) => {
+                console.log("datadata:", res.data);
+                if (res.data.status === 0) {
+                    // 登录成功，保存令牌到本地存储
+                    const token = res.data.token;
+                    const studentId= res.data.user.id;
+                    localStorage.setItem('token', token);
+                    localStorage.setItem('studentId', studentId);
+                    // 重定向到学生首页或者执行其他操作
+                    navigate("/StudentHome");
+                } else if (res.data.status === -1) {
+                    setUsernameError(true);
+                } else if (res.data.status === 1) {
+                    setPasswordError(true);
+                }
+            })
+            .catch((err) => {
+                console.log(err);
+            });
     } else {
-      alert("填写不能为空！");
+        alert("填写不能为空！");
     }
-  };
+};
+
+const checkToken = () => {
+  const token = localStorage.getItem('token');
+  if (token) {
+      // 如果存在token，直接跳转到学生主页
+      navigate("/StudentHome");
+  }
+};
+
+useEffect(() => {
+  checkToken();
+})
   
 
   const register = () => {

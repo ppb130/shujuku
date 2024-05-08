@@ -1,49 +1,57 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const pool  = require('../Models/student'); // 导入线程池
 const saltRounds = 10; // 加密的盐值轮数
 
 const studentLogin = express.Router(); // 创建一个新的路由实例
 
+function generateToken(userId) {
+    const token = jwt.sign({ userId }, 'your_secret_key', { expiresIn: '1h' });
+    return token;
+}
+
 studentLogin.post('/studentlogin', async (req, res) => {
     const { username, password } = req.body;
     // 检查用户名和密码是否为空
     if (!username || !password) {
-        return res.status(400).json({ error: '用户名和密码不能为空' });
+      return res.status(400).json({ error: '用户名和密码不能为空' });
     }
-
+  
     try {
-        // 查询用户信息
-        const [results, fields] = await pool.query('SELECT * FROM student WHERE Student_number = ?', [username]);
-        //const [results, fields] = await pool.query('SELECT * FROM student ', []);
-        console.log("results",results);
-        // 检查是否有匹配的用户
-        if (results.length === 0) {
-            return res.status(401).json({ error: '用户名或密码错误' });
+      // 查询用户信息
+      const [results, fields] = await pool.query('SELECT * FROM student WHERE Student_number = ?', [username]);
+      //const [results, fields] = await pool.query('SELECT * FROM student ', []);
+      console.log("results",results);
+      // 检查是否有匹配的用户
+      if (results.length === 0) {
+        return res.status(401).json({ error: '用户名或密码错误' });
+      }
+  
+      const user = results; // 取第一个匹配的用户
+      console.log("user",user);
+      // 检查密码是否匹配
+      const passwordMatch = await bcrypt.compare(password, user.Password);
+  
+      if (!passwordMatch) {
+        return res.status(401).json({ error: '用户名或密码错误' });
+      }
+  
+      // 登录成功，生成并返回令牌
+      const token = generateToken(user.Student_number);
+      res.json({
+        status: 0,
+        token: token,
+        user: {
+          id: user.Student_number,
+          identity: user.identity
         }
-
-        const user = results;
-        console.log("user",user);
-        // 检查密码是否匹配
-        const passwordMatch = await bcrypt.compare(password, user.Password);
-
-        if (!passwordMatch) {
-            return res.status(401).json({ error: '用户名或密码错误' });
-        }
-
-        // 登录成功，返回用户信息
-        res.json({
-            status: 0,
-            user: {
-                id: user.Student_number,
-                identity: user.identity
-            }
-        });
+      });
     } catch (error) {
-        console.error('数据库查询出错:', error);
-        return res.status(500).json({ error: '数据库查询失败' });
+      console.error('数据库查询出错:', error);
+      return res.status(500).json({ error: '数据库查询失败' });
     }
-});
+  });
 
 // 将密码加密函数修改为bcrypt的加密函数
 async function encryptPassword(password) {

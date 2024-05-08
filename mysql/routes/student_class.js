@@ -3,6 +3,8 @@ const student_course = express.Router();
 const pool = require('../Models/student');
 
 student_course.get('/student_cources', async (req, res) => {
+  const { studentNumber } = req.query;
+  console.log("studentNumber",studentNumber);
   try {
     pool.getConnection(function (err, conn){
       if (err) {
@@ -13,9 +15,10 @@ student_course.get('/student_cources', async (req, res) => {
         let sql = `SELECT * FROM student_course, course_name, student_name, course
                WHERE student_course.Course_number = course_name.Course_number
                AND student_course.Student_number = student_name.Student_number
-               AND student_course.Course_number = course.Course_number`;
+               AND student_course.Course_number = course.Course_number
+               AND student_course.Student_number = ?`;
         // 查询操作
-        conn.query(sql, function (err, result) {
+        conn.query(sql,[studentNumber], function (err, result) {
             if (err) {
                 console.log("数据库查询失败");
             } else {

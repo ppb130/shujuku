@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Table } from 'antd';
-import styled from 'styled-components';
-import html2canvas from 'html2canvas';
+import { Table,Button,Modal } from 'antd';
+import styled, { css } from 'styled-components';
+import { CSVLink } from 'react-csv';
+import '../css/studentCourse.css';
+import { PDFDownloadLink, PDFViewer } from '@react-pdf/renderer';
+import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 
 const TimeColumn = styled.div`
   width: 100px;
@@ -32,7 +35,9 @@ const generateWeekDates = () => {
 
 const StudentCourse = () => {
   const [dataSource, setDataSource] = useState([]);
+  const [selectedCourse, setSelectedCourse] = useState(null);
   const weekdays = generateWeekDates();
+  const [studentId, setStudentId] = useState();
   
   const columns = [
     {
@@ -54,9 +59,16 @@ const StudentCourse = () => {
     })),
   ];
 
+  useEffect(() => {
+    const id = localStorage.getItem('studentId');
+    if (id) {
+      setStudentId(id);
+    }
+  }, []);
+
 const fetchStudentCourses = async () => {
   try {
-    const response = await fetch('http://localhost:3000/student_cources');
+    const response = await fetch('http://localhost:3000/student_cources?studentNumber=21120777');
     if (!response.ok) {
       throw new Error('Failed to fetch student courses');
     }
@@ -73,8 +85,10 @@ const fetchStudentCourses = async () => {
 
 // 调用函数来获取学生课程数据
 useEffect(() => {
-  fetchStudentCourses();
-},[])
+  if(studentId){
+    fetchStudentCourses();
+  }
+},[studentId])
 
 const getWeekend = (value) => {
   switch(value){
@@ -127,7 +141,39 @@ const getIndex = (value) => {
 }
 
 
+const TableCell = styled.td`
+    background-color: ${({ isCourseName }) => (isCourseName ? '#f0f0f0' : 'transparent')}; // 设置课程名单元格的背景颜色
+    display: block;
+    width: 100%;
+    height: 100%;
+    font-size: 20px;
+    cursor: ${({ isCourseName }) => (isCourseName ? 'pointer' : 'default')}; // 鼠标样式
+    
+`;
 
+const CourseInfoModal = ({ course, visible, onClose }) => (
+  <Modal
+    title="课程详情"
+    visible={visible}
+    onCancel={onClose}
+    footer={null}
+  >
+    <p>课程名称: {course.Course_name}</p>
+    <p>教室: {course.Classroom}</p>
+    {/* 其他课程信息 */}
+  </Modal>
+);
+
+
+const handleCourseClick = (course) => {
+  console.log('Course clicked:', course);
+  setSelectedCourse(course);
+};
+
+
+const handleCloseModal = () => {
+  setSelectedCourse(null);
+};
 
 const data = generateTimeColumn().map((time, timeIndex) => {
   const rowData = {};
@@ -139,10 +185,26 @@ const data = generateTimeColumn().map((time, timeIndex) => {
     // 将 dayIndex 和 timeIndexs 添加到 rowData 对象中
     if(timeIndexs.includes(timeIndex)){
       if(timeIndex%2===0){
-      rowData[`day${dayIndex}`]=course.Course_name;
+      rowData[`day${dayIndex}`]=(
+          <TableCell 
+            key={course.id} 
+            isCourseName
+            onClick={() => handleCourseClick(course)} // 点击事件处理程序
+          >
+            {course.Course_name}
+          </TableCell>
+       )
       }
       else{
-      rowData[`day${dayIndex}`]=course.Classroom;
+      rowData[`day${dayIndex}`]=(
+        <TableCell 
+          key={course.id} 
+          isCourseName
+          onClick={() => handleCourseClick(course)}
+        >
+          {course.Course_name}
+        </TableCell>
+      );
       }
     }
   });
@@ -158,7 +220,23 @@ const data = generateTimeColumn().map((time, timeIndex) => {
 
   
 
-  return <Table columns={columns} dataSource={data} bordered pagination={{ pageSize: 12 }} />;
+  return (
+  <>
+  <Table columns={columns} dataSource={data} bordered pagination={{ pageSize: 12 }} />;
+  {selectedCourse && (
+        <CourseInfoModal
+          course={selectedCourse}
+          visible={!!selectedCourse}
+          onClose={handleCloseModal}
+        />
+      )}
+  <CSVLink data={data} filename={'my-table-data.csv'}>
+    <Button type="primary" style={{ marginTop: 16 }}>
+      Download CSV
+    </Button>
+  </CSVLink>
+</>
+  )
 };
 
 export default StudentCourse;

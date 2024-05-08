@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { ScheduleOutlined, SnippetsOutlined, UserOutlined } from '@ant-design/icons';
-import { Breadcrumb, Layout, Menu, theme } from 'antd';
+import { Breadcrumb, Layout, Menu, theme,Button } from 'antd';
+import { useNavigate } from 'react-router-dom';
 import SelectClass from "./selectClass";
 import StudentCourse from "./studentCourse";
 import DelectClass from "./delectClass";
@@ -36,7 +37,7 @@ const items = [
 
 const StudentHome = () => {
   const [selectedMenuItem, setSelectedMenuItem] = useState(items[0].key);
-
+  const navigate = useNavigate();
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -44,6 +45,25 @@ const StudentHome = () => {
   const handleMenuItemClick = (key) => {
     setSelectedMenuItem(key);
   };
+
+  // 在学生主页（/StudentHome）中的JavaScript文件中实现注销功能
+  const logout = () => {
+    console.log("注销成功");
+  // 清除本地存储中的token
+    localStorage.removeItem('token');
+    localStorage.removeItem('studentId');
+  // 重定向到主页（/）
+    navigate("/");
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        // 如果不存在token，重定向到主页
+        navigate("/");
+    }
+}, []);
+
 
   return (
     <Layout>
@@ -54,6 +74,7 @@ const StudentHome = () => {
         }}
       >
         <div className="demo-logo" />
+        <Button onClick={logout}>注销</Button>
       </Header>
       <Layout>
         <Sider

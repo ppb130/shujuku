@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {  Table, Input, Button, Space,Layout } from 'antd';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Highlighter from 'react-highlight-words';
 import { SearchOutlined } from '@ant-design/icons';
@@ -13,6 +14,18 @@ const SelectClass = () => {
   const [searchText, setSearchText] = useState('');
   const [searchedColumn, setSearchedColumn] = useState('');
   const [selectedRows, setSelectedRows] = useState([]);
+  const [studentId, setStudentId] = useState();
+
+  const navigate = useNavigate();
+
+  
+  useEffect(() => {
+    const id = localStorage.getItem('studentId');
+    if (id) {
+      setStudentId(id);
+    }
+  }, []);
+
   const columns = [
     {
       title: '课程名',
@@ -141,7 +154,7 @@ const SelectClass = () => {
       // 逐行发送数据
       for (const row of selectedRows) {
         const dataToSend = {
-          Student_number: "21120777",  // 这里替换为真实的学生学号
+          Student_number: studentId,  // 这里替换为真实的学生学号
           Course_number: row.Course_number,
           credit: row.Credit,
           Time: row.Time,
@@ -151,9 +164,13 @@ const SelectClass = () => {
         const response = await axios.post('http://localhost:3000/addStudentClass', dataToSend);
         console.log('Response from server:', response.data);
       }
-  
+      
       // 清空选中的行
       setSelectedRows([]);
+      console.log('Selected rows confirmed:', selectedRows);
+      navigate(window.location.pathname, { replace: true });
+      console.log('Navigated to studentHome');
+      alert("选课成功")
     } catch (error) {
       console.error('Error confirming selection:', error);
     }
