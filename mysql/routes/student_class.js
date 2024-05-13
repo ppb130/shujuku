@@ -12,16 +12,19 @@ student_course.get('/student_cources', async (req, res) => {
     } else {
         console.log("数据库连接成功");
         // 定义sql查询语句
-        let sql = `SELECT * FROM student_course, course_name, student_name, course
+        let sql = `SELECT * FROM student_course, course_name, student_name, course,teacher_name
                WHERE student_course.Course_number = course_name.Course_number
                AND student_course.Student_number = student_name.Student_number
                AND student_course.Course_number = course.Course_number
+               And student_course.Job_number = teacher_name.Job_number
+               And student_course.Job_number = course.Job_number
                AND student_course.Student_number = ?`;
         // 查询操作
         conn.query(sql,[studentNumber], function (err, result) {
             if (err) {
                 console.log("数据库查询失败");
             } else {
+                console.log(result);
                 res.json(result);
                 conn.release();
             }

@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import SelectClass from "./selectClass";
 import StudentCourse from "./studentCourse";
 import DelectClass from "./delectClass";
+import StudentCourseChart from "./studentCourseChart";
 
 const { Header, Content, Sider } = Layout;
 
@@ -31,7 +32,7 @@ const items = [
     key: '查看成绩',
     icon: <ScheduleOutlined />,
     label: '查看成绩',
-    component: null, // Add component for '查看成绩' if needed
+    component: <StudentCourseChart />, // Add component for '查看成绩' if needed
   }
 ];
 

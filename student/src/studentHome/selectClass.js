@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {  Table, Input, Button, Space,Layout } from 'antd';
+import {  Table, Input, Button, Space,Layout,message} from 'antd';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Highlighter from 'react-highlight-words';
@@ -15,6 +15,7 @@ const SelectClass = () => {
   const [searchedColumn, setSearchedColumn] = useState('');
   const [selectedRows, setSelectedRows] = useState([]);
   const [studentId, setStudentId] = useState();
+  const [key, setKey] = useState(0); // 定义 key 属性的状态
 
   const navigate = useNavigate();
 
@@ -52,6 +53,16 @@ const SelectClass = () => {
       dataIndex: 'Time',
       key: 'Time',
     },
+    {
+      title: '选课人数',
+      dataIndex: 'CurCapacity',
+      key: 'CurCapacity',
+    },
+    {
+      title: '课程容量',
+      dataIndex: 'Capacity',
+      key: 'Capacity',
+    }
   ];
 
   const fetchData = async (params = {}) => {
@@ -62,6 +73,7 @@ const SelectClass = () => {
           pageSize: params.pageSize,
         },
       });
+      console.log("response",response.data);
       setDataSource(response.data);
       setPagination({
         ...pagination,
@@ -96,7 +108,7 @@ const SelectClass = () => {
     filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
       <div style={{ padding: 8 }}>
         <Input
-          placeholder={`搜索 ${dataIndex}`}
+          placeholder={`搜索 `}
           value={selectedKeys[0]}
           onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
           onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
@@ -158,11 +170,20 @@ const SelectClass = () => {
           Course_number: row.Course_number,
           credit: row.Credit,
           Time: row.Time,
+          Job_number: row.Job_number,
+          Term: row.Term,
         };
-    
+  
         // 发送HTTP请求到后端
         const response = await axios.post('http://localhost:3000/addStudentClass', dataToSend);
         console.log('Response from server:', response.data);
+        
+        // 检查是否有后端返回的错误信息
+        if (response.data.error) {
+          // 如果有错误信息，则显示给用户
+          alert("选课失败：" + response.data.error);
+          return;
+        }
       }
       
       // 清空选中的行
@@ -170,11 +191,23 @@ const SelectClass = () => {
       console.log('Selected rows confirmed:', selectedRows);
       navigate(window.location.pathname, { replace: true });
       console.log('Navigated to studentHome');
-      alert("选课成功")
-    } catch (error) {
+      message.success("选课成功");
+      fetchData();
+      setKey(prevKey => prevKey + 1);
+    } 
+    catch (error) {
       console.error('Error confirming selection:', error);
+      // 如果是 Axios 错误，则尝试显示具体的错误原因
+      if (error.response && error.response.data && error.response.data.error) {
+        message.error("选课失败：" + error.response.data.error);
+      } else {
+        // 如果是其他类型的错误，显示通用错误消息
+        message.error("选课失败：服务器错误，请稍后重试");
+      }
     }
   };
+  
+  
   
 
   return (
@@ -182,8 +215,12 @@ const SelectClass = () => {
       <Content style={{ padding: '0 50px', marginTop: 0 }}>
         <div style={{ background: '#fff', padding: 24, minHeight: 280 }}>
           <Table
-            rowKey="Course_number"
-            dataSource={dataSource}
+            // rowKey=index
+            // dataSource={dataSource}
+            dataSource={dataSource.map((row, index) => ({
+              ...row,
+              key: `${row.Course_number}-${row.Course_number}-${row.Job_number}`, // 使用 Course_number 和 Time 组合作为 key
+            }))}
             rowSelection={{
               type: 'checkbox',
               onChange: handleSelectChange,
@@ -200,7 +237,7 @@ const SelectClass = () => {
           </Button>
         </div>
       </Content>
-     <StudentCourse/>
+     <StudentCourse key={key}/>
     </Layout> 
 
   );

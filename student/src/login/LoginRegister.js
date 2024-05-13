@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useRef } from "react";
 import axios from "axios";
 import "./LoginRegister.css";
 import { useNavigate } from "react-router-dom";
@@ -11,6 +11,7 @@ const LoginRegister = () => {
   const [passwordError, setPasswordError] = useState(false);
   const [existed, setExisted] = useState(false);
   const [form, setForm] = useState({ username: "", userpwd: "" });
+  const buttonRef = useRef(null)
 
   const changeType = () => {
     setIsLogin(!isLogin);
@@ -46,6 +47,14 @@ const LoginRegister = () => {
     } else {
         alert("填写不能为空！");
     }
+};
+
+const handleKeyDown = (event) => {
+  // 检查是否按下了Enter键 (键码为13)
+  if (event.key === 'Enter') {
+    // 调用登录函数
+    login();
+  }
 };
 
 const checkToken = () => {
@@ -97,12 +106,13 @@ useEffect(() => {
         <div className={`big-box ${isLogin ? "active" : ""}`}>
           {isLogin ? (
             <div className="big-contain">
-              <div className="btitle">账户登录</div>
+              <div className="btitle">学号</div>
               <div className="bform">
                 <input
                   type="text"
-                  placeholder="用户名"
+                  placeholder="学号"
                   value={form.username}
+                  onKeyDown={handleKeyDown}
                   onChange={(e) =>
                     setForm({ ...form, username: e.target.value })
                   }
@@ -114,6 +124,7 @@ useEffect(() => {
                   type="password"
                   placeholder="密码"
                   value={form.userpwd}
+                  onKeyDown={handleKeyDown}
                   onChange={(e) =>
                     setForm({ ...form, userpwd: e.target.value })
                   }
@@ -122,7 +133,7 @@ useEffect(() => {
                   <span className="errTips">* 密码填写错误 *</span>
                 )}
               </div>
-              <button className="bbutton" onClick={login}>
+              <button ref={buttonRef} className="bbutton" onClick={login}>
                 登录
               </button>
             </div>
@@ -170,10 +181,6 @@ useEffect(() => {
           {isLogin ? (
             <div className="small-contain">
               <div className="stitle">你好，朋友！</div>
-              <p className="scontent">开始注册，开启任务小助手~</p>
-              <button className="sbutton" onClick={changeType}>
-                注册
-              </button>
             </div>
           ) : (
             <div className="small-contain">

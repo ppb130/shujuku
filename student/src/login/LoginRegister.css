@@ -2,6 +2,9 @@
 	width: 100vw;
 	height: 100vh;
 	box-sizing: border-box;
+	background-image: url(
+	    "https://ts1.cn.mm.bing.net/th/id/R-C.0db69d4eb406274f97aede927d6421c5?rik=1vsJEUe4b53X0w&riu=http%3a%2f%2fimg.pconline.com.cn%2fimages%2fphotoblog%2f6%2f1%2f2%2f2%2f6122598%2f200711%2f21%2f1195647807018.jpg&ehk=nQLsSWRQfSTdMZgDjaquP92PgbuoOd%2f6jOYtsXj34Qo%3d&risl=&pid=ImgRaw&r=0"
+	)
 }
 
 .contain {
@@ -25,6 +28,8 @@
 	left: 30%;
 	transform: translateX(0%);
 	transition: all 1s;
+	background-color: rgb(189, 185, 185);
+	border: 100px;
 }
 
 .big-contain {

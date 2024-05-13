@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Table,Button,Modal } from 'antd';
 import styled, { css } from 'styled-components';
 import { CSVLink } from 'react-csv';
 import '../css/studentCourse.css';
+import { toPng } from 'html-to-image';
+import download from 'downloadjs'; // 用于下载图像
 import { PDFDownloadLink, PDFViewer } from '@react-pdf/renderer';
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 
@@ -38,6 +40,8 @@ const StudentCourse = () => {
   const [selectedCourse, setSelectedCourse] = useState(null);
   const weekdays = generateWeekDates();
   const [studentId, setStudentId] = useState();
+  const tableRef = useRef(null); // 创建一个ref用于引用table元素
+
   
   const columns = [
     {
@@ -66,22 +70,27 @@ const StudentCourse = () => {
     }
   }, []);
 
-const fetchStudentCourses = async () => {
-  try {
-    const response = await fetch('http://localhost:3000/student_cources?studentNumber=21120777');
-    if (!response.ok) {
-      throw new Error('Failed to fetch student courses');
+  const fetchStudentCourses = async () => {
+    try {
+      const response = await fetch(`http://localhost:3000/student_cources?studentNumber=${studentId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch student courses');
+      }
+      const data = await response.json();
+      
+      // 过滤学期为 "24春" 的课程
+      const filteredData = data.filter(course => course.Term === "24春");
+      
+      setDataSource(filteredData);
+      // 在这里你可以对返回的数据进行任何操作，比如存储到状态中或者进行其他处理
+      console.log('Student courses data:', filteredData);
+      return filteredData;
+    } catch (error) {
+      console.error('Error fetching student courses:', error);
+      // 在这里你可以处理错误，比如显示错误信息给用户
     }
-    const data = await response.json();
-    setDataSource(data);
-    // 在这里你可以对返回的数据进行任何操作，比如存储到状态中或者进行其他处理
-    console.log('Student courses data:', dataSource);
-    return data;
-  } catch (error) {
-    console.error('Error fetching student courses:', error);
-    // 在这里你可以处理错误，比如显示错误信息给用户
-  }
-};
+  };
+  
 
 // 调用函数来获取学生课程数据
 useEffect(() => {
@@ -160,7 +169,9 @@ const CourseInfoModal = ({ course, visible, onClose }) => (
   >
     <p>课程名称: {course.Course_name}</p>
     <p>教室: {course.Classroom}</p>
-    {/* 其他课程信息 */}
+    <p>教师: {course.Name}</p>
+    <p>时间: {course.Time}</p>
+    <p>学分: {course.Credit}</p>
   </Modal>
 );
 
@@ -216,13 +227,29 @@ const data = generateTimeColumn().map((time, timeIndex) => {
 });
 
 
+const handleDownloadImage = async () => {
+  const tableNode = document.getElementById('course-table'); // 获取课表的 DOM 元素
+  try {
+    const dataUrl = await toPng(tableNode); // 使用 toPng 方法将课表转换为 PNG 图像的 Data URL
+    const link = document.createElement('a');
+    link.href = dataUrl;
+    link.download = 'student_course.png'; // 设置下载文件的名称
+    link.click();
+  } catch (error) {
+    console.error('Error capturing table image:', error);
+    // 处理错误
+  }
+};
+
+
+
 
 
   
 
   return (
   <>
-  <Table columns={columns} dataSource={data} bordered pagination={{ pageSize: 12 }} />;
+  <Table id="course-table" columns={columns} dataSource={data} bordered pagination={{ pageSize: 12 }} />;
   {selectedCourse && (
         <CourseInfoModal
           course={selectedCourse}
@@ -235,6 +262,9 @@ const data = generateTimeColumn().map((time, timeIndex) => {
       Download CSV
     </Button>
   </CSVLink>
+  <Button type="primary" onClick={handleDownloadImage}>
+    Download PNG
+  </Button>
 </>
   )
 };
