@@ -211,6 +211,7 @@ const SelectClass = () => {
   
 
   return (
+
     <Layout>
       <Content style={{ padding: '0 50px', marginTop: 0 }}>
         <div style={{ background: '#fff', padding: 24, minHeight: 280 }}>
@@ -239,7 +240,6 @@ const SelectClass = () => {
       </Content>
      <StudentCourse key={key}/>
     </Layout> 
-
   );
 };
 

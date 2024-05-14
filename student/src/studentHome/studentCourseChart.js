@@ -9,6 +9,7 @@ const StudentCourseChart = () => {
   const [studentId, setStudentId] = useState();
   const [chartInstance, setChartInstance] = useState(null);
   const [selectTerm, setSelectTerm] = useState(null);
+  const [selectedTerm, setSelectedTerm] = useState(null); // 新增的选择学期状态
 
   useEffect(() => {
     const id = localStorage.getItem('studentId');
@@ -55,8 +56,9 @@ const StudentCourseChart = () => {
       return getDefaultData();
     }
   
-    const labels = courseData.map(course => course.Course_name);
-    const data = courseData.map(course => parseFloat(course.Grade_point));
+    const filteredCourses = courseData.filter(course => course.Term === selectedTerm); // 使用选择的学期进行过滤
+    const labels = filteredCourses.map(course => course.Course_name);
+    const data = filteredCourses.map(course => parseFloat(course.Grade_point));
   
     return {
       labels: labels,
@@ -92,6 +94,7 @@ const StudentCourseChart = () => {
   // Function to handle term selection
   const handleTermChange = (event) => {
     const selectedTerm = event.target.value;
+    setSelectedTerm(selectedTerm); // 更新选择的学期状态
     // Here you can fetch data for the selected term if needed
     console.log('Selected Term:', selectedTerm);
   };
@@ -110,7 +113,7 @@ const StudentCourseChart = () => {
                     <input
                       type="radio"
                       value={term}
-                      checked={selectTerm === term}
+                      checked={selectedTerm === term} // 使用选择的学期来确定选中状态
                       onChange={handleTermChange}
                     />
                     {term}
@@ -122,6 +125,7 @@ const StudentCourseChart = () => {
         }
       </div>
       {/* Radar chart component */}
+      <div style={{ width: '70%', height: '70%' }}>
       <Radar
         data={parseCourseData(courseData)}
         options={{
@@ -145,6 +149,7 @@ const StudentCourseChart = () => {
           onCanvasDestroy: (chartInstance) => setChartInstance(chartInstance)
         }}
       />
+      </div>
     </div>
   );
 };

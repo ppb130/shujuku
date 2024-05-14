@@ -95,7 +95,7 @@ const DelectClass = () => {
 
     return (
         <div>
-            <h1>Student Courses</h1>
+            <h1>退课</h1>
             <Table dataSource={dataSource} columns={columns} />
         </div>
     );

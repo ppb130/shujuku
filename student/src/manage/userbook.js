@@ -40,7 +40,7 @@ const App = () => {
   useEffect(() => {
     // 在组件挂载后获取数据
     axios
-      .get("http://127.0.0.1:3100/api/search")
+      .get("http://localhost:3100/api/search")
       .then((response) => {
         // 解析响应数据并设置到状态中
         setData(response.data);

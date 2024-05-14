@@ -75,7 +75,9 @@ const StudentHome = () => {
         }}
       >
         <div className="demo-logo" />
-        <Button onClick={logout}>注销</Button>
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <Button onClick={logout} >注销</Button>
+        </div>
       </Header>
       <Layout>
         <Sider

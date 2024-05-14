@@ -233,7 +233,7 @@ const handleDownloadImage = async () => {
     const dataUrl = await toPng(tableNode); // 使用 toPng 方法将课表转换为 PNG 图像的 Data URL
     const link = document.createElement('a');
     link.href = dataUrl;
-    link.download = 'student_course.png'; // 设置下载文件的名称
+    link.download = '学生课表.png'; // 设置下载文件的名称
     link.click();
   } catch (error) {
     console.error('Error capturing table image:', error);
@@ -257,13 +257,8 @@ const handleDownloadImage = async () => {
           onClose={handleCloseModal}
         />
       )}
-  <CSVLink data={data} filename={'my-table-data.csv'}>
-    <Button type="primary" style={{ marginTop: 16 }}>
-      Download CSV
-    </Button>
-  </CSVLink>
   <Button type="primary" onClick={handleDownloadImage}>
-    Download PNG
+    下载课表
   </Button>
 </>
   )

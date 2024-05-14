@@ -61,7 +61,7 @@ const App = () => {
   useEffect(() => {
     if (selectedKey === "2") {
       axios
-        .get("http://127.0.0.1:3100/api/search")
+        .get("http://localhost:3100/api/search")
         .then((response) => {
           // 解析响应数据并设置到状态中
           setData(response.data);
@@ -74,7 +74,7 @@ const App = () => {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get("http://127.0.0.1:3100/api/search");
+      const response = await axios.get("http://localhost:3100/api/search");
       setData(response.data);
     } catch (error) {
       console.error("获取书籍数据失败:", error);
@@ -87,7 +87,7 @@ const App = () => {
   const onFinish = async (values) => {
     try {
       const response = await axios.post(
-        "http://127.0.0.1:3100/api/books",
+        "http://localhost:3100/api/books",
         values
       );
       if (response.status === 200) {
@@ -104,7 +104,7 @@ const App = () => {
   const deleteBook = async (id) => {
     try {
       const response = await axios.delete(
-        `http://127.0.0.1:3100/api/delete/${id}`
+        `http://localhost:3100/api/delete/${id}`
       );
       if (response.status === 200) {
         alert("书籍删除成功");

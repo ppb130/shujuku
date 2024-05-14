@@ -73,7 +73,7 @@ useEffect(() => {
   const register = () => {
     if (form.username !== "" && form.userpwd !== "" && form.identity !== "") {
       axios
-        .post("http://127.0.0.1:3100/add", {
+        .post("http://localhost:3100/add", {
           username: form.username,
           password: form.userpwd,
           identity: form.identity,
@@ -106,7 +106,7 @@ useEffect(() => {
         <div className={`big-box ${isLogin ? "active" : ""}`}>
           {isLogin ? (
             <div className="big-contain">
-              <div className="btitle">学号</div>
+              <div className="btitle">学生登录</div>
               <div className="bform">
                 <input
                   type="text"
